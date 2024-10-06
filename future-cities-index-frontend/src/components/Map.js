@@ -32,51 +32,67 @@ export default function MapComponent() {
         if (clickedPosition[0] === 0 && clickedPosition[1] === 0) {
             return;
         }
-        const wkt = `POINT(${clickedPosition[1]} ${clickedPosition[0]})`; // WKT format uses "lng lat" (long-lat order)
-        fetch(`http://localhost:3000/census/us/tracts/geometry?wkt=${encodeURIComponent(wkt)}`)
-            .then((response) => {
+    
+        const wkt = `POINT(${clickedPosition[1]} ${clickedPosition[0]})`; // WKT format uses "lng lat"
+    
+        // Function to fetch census tract data
+        const fetchCensusData = async () => {
+            try {
+                const response = await fetch(`http://localhost:3000/census/us/tracts/geometry?wkt=${encodeURIComponent(wkt)}`);
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error('Failed to fetch census data');
                 }
-                return response.json();
-            })
-            .then((data) => {
-                setClickedPositionData({
-                    tractCode: data.censusTracts[0].tractCode,
-                    censusName: data.censusTracts[0].name,
-                    featureClass: data.censusTracts[0].featureClass,
-                    geoId: data.censusTracts[0].geoid,
-                    wtkOutline: data.censusTracts[0].location.geometry.wkt,
-                    // process the wkt data to geojson, ensure new object
-                    geoJson: { ...wktToGeoJSON(data.censusTracts[0].location.geometry.wkt) },
+                const data = await response.json();
+                if (!data.censusTracts || data.censusTracts.length === 0) {
+                    throw new Error('No census tracts data found');
+                }
+    
+                const tract = data.censusTracts[0];
+                const updatedData = {
+                    tractCode: tract.tractCode,
+                    censusName: tract.name,
+                    featureClass: tract.featureClass,
+                    geoId: tract.geoid,
+                    wtkOutline: tract.location.geometry.wkt,
+                    geoJson: { ...wktToGeoJSON(tract.location.geometry.wkt) },
                     futureCitiesIndex: null
-                });
-
-
-                fetch(`http://localhost:3000/future-cities-index/${clickedPositionData.geoId}`)
-                    .then((response) => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then((data) => {
-                        setClickedPositionData(prevData => ({
-                            ...prevData,
-                            futureCitiesIndex: data
-                        }));
-                    }).catch((error) => {
-                        // Handle errors
-                        console.error('Error fetching data from Lightbox API:', error.message);
-                    });
-            }).catch((error) => {
-                // Handle errors
+                };
+    
+                setClickedPositionData(updatedData);
+    
+                // Fetch future cities index data after census data is set
+                await fetchFutureCitiesIndex(updatedData.geoId);
+            } catch (error) {
+                console.error('Error fetching census data:', error.message);
                 setClickedPositionData(prevData => ({
                     ...prevData,
                     geoJson: null
                 }));
-            });
+            }
+        };
+    
+        // Function to fetch future cities index data
+        const fetchFutureCitiesIndex = async (geoId) => {
+            try {
+                const response = await fetch(`http://localhost:3000/future-cities-index/${geoId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch future cities index');
+                }
+                const data = await response.json();
+    
+                setClickedPositionData(prevData => ({
+                    ...prevData,
+                    futureCitiesIndex: data
+                }));
+            } catch (error) {
+                console.error('Error fetching future cities index:', error.message);
+            }
+        };
+    
+        // Trigger the initial data fetch
+        fetchCensusData();
     }, [clickedPosition]);
+    
 
     const handleMapClick = (e) => {
         const { lat, lng } = e.latlng;
