@@ -1,6 +1,10 @@
 const express = require('express');
 const axios = require('axios');
+const cors = require('cors');
 const app = express();
+app.use(cors({
+    origin: 'http://localhost:3001' 
+}));
 const PORT = process.env.PORT || 3000;
 
 // Replace this with your actual Lightbox API key
@@ -24,6 +28,8 @@ app.get('/v1/census/us/tracts/tile/:z/:x/:y', async (req, res) => {
 
         // Set the correct content type for the image
         res.setHeader('Content-Type', response.headers['content-type']);
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 
         // Pipe the response data to the client
         response.data.pipe(res);
@@ -39,11 +45,12 @@ app.get('/v1/census/us/tracts/tile/:z/:x/:y', async (req, res) => {
 });
 
 app.get('/census/us/tracts/geometry', async (req, res) => {
-    const { lat, lng } = req.query;
+    const { wkt } = req.query;
+
 
     // Build the API URL using the parameters
-    const apiUrl = `https://api.lightboxre.com/v1/census/us/tracts/geometry?wkt=POINT(${lng} ${lat})`;
-
+    // const apiUrl = `https://api.lightboxre.com/v1/census/us/tracts/geometry?wkt=${wkt}`;
+    const apiUrl = `https://api.lightboxre.com/v1/census/us/tracts/geometry?wkt=${encodeURIComponent(wkt)}`;
     try {
         // Make the request to the Lightbox API
         const response = await axios.get(apiUrl, {
@@ -52,8 +59,16 @@ app.get('/census/us/tracts/geometry', async (req, res) => {
             }
         });
 
+        // copy headers from response to res
+        Object.keys(response.headers).forEach(key => {
+            res.setHeader(key, response.headers[key]);
+        });
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
         // Return the response data
         res.json(response.data);
+
+
         return response.data;
     } catch (error) {
         console.error('Error fetching data from Lightbox API:', error.message);
@@ -126,5 +141,4 @@ app.get('/mapper/risk/tract/:tractId', async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
-    
 });

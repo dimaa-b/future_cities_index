@@ -7,8 +7,25 @@ export default function MapComponent() {
 
     const handleMapClick = (e) => {
         const { lat, lng } = e.latlng;
-        alert(`Clicked at: ${lat}, ${lng}`);
-      };
+
+        // Construct WKT point format
+        const wkt = `POINT(${lng} ${lat})`; // WKT format uses "lng lat" (long-lat order)
+
+        // API call to /census/us/tracts/geometry
+        fetch(`http://localhost:3000/census/us/tracts/geometry?wkt=${encodeURIComponent(wkt)}`)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // Handle the data returned from the API
+                // console.log('Census Tract Data:', data.censusTracts[0].tractCode);
+                alert(`Census tract data received for point: ${data.censusTracts[0].tractCode}`);
+            })
+        // alert(`Clicked at: ${lat}, ${lng}`);
+    };
 
     return (
         <MapContainer center={position} zoom={4.5} style={mapStyle} maxBounds={[[24.396308, -125.0], [49.384358, -66.93457]]}>
@@ -27,7 +44,7 @@ export default function MapComponent() {
 
 const MapEventsHandler = ({ handleMapClick }) => {
     useMapEvents({
-      click: (e) => handleMapClick(e),
+        click: (e) => handleMapClick(e),
     });
     return null;
-  };
+};
