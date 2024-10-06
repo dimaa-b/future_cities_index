@@ -21,12 +21,40 @@ app.get('/v1/census/us/tracts/tile/:z/:x/:y', async (req, res) => {
             },
             responseType: 'stream'
         });
-        
+
         // Set the correct content type for the image
         res.setHeader('Content-Type', response.headers['content-type']);
 
         // Pipe the response data to the client
         response.data.pipe(res);
+    } catch (error) {
+        console.error('Error fetching data from Lightbox API:', error.message);
+
+        // Handle errors
+        res.status(error.response ? error.response.status : 500).json({
+            message: 'Error fetching data from Lightbox API',
+            error: error.message
+        });
+    }
+});
+
+app.get('/census/us/tracts/geometry', async (req, res) => {
+    const { lat, lng } = req.query;
+
+    // Build the API URL using the parameters
+    const apiUrl = `https://api.lightboxre.com/v1/census/us/tracts/geometry?wkt=POINT(${lng} ${lat})`;
+
+    try {
+        // Make the request to the Lightbox API
+        const response = await axios.get(apiUrl, {
+            headers: {
+                'x-api-key': `${API_KEY}`
+            }
+        });
+
+        // Return the response data
+        res.json(response.data);
+        return response.data;
     } catch (error) {
         console.error('Error fetching data from Lightbox API:', error.message);
 
