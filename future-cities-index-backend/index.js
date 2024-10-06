@@ -192,6 +192,7 @@ async function getFutureCitiesIndex(tractId) {
     }
 }
 app.get('/future-cities-index/:tractId', async (req, res) => {
+    console.log('works')
     const { tractId } = req.params;
 
     try {

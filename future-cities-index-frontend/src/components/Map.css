@@ -2,9 +2,55 @@
     box-sizing: border-box;
     padding: 2em;
     width: 30vw;
+    background-color: #f4f4f4; /* Light neutral background for contrast */
+    border-right: 2px solid #ccc; /* Add subtle border */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    font-family: 'Arial', sans-serif; /* Professional, clean font */
+    /* background: gray; */
 }
 
 .leaflet-container {
-    width: 70vw;
+    /* width: 70vw; */
     height: 100vh;
+    border-radius: 10px;
 }
+
+.sidebar h2, 
+.sidebar p, 
+.sidebar ul {
+    text-align: left;
+    color: #333; /* Darker text for better readability */
+}
+
+.sidebar h2 {
+    margin-top: 0;
+    font-size: 1.8em; /* Larger for heading emphasis */
+    color: #2c3e50; /* Slightly darker for a professional look */
+}
+
+.sidebar p {
+    line-height: 1.6; /* Improved readability */
+    font-size: 1.1em;
+}
+
+.sidebar ul {
+    list-style-type: none; /* Remove bullet points */
+    padding-left: 0;
+}
+
+.sidebar ul li {
+    padding: 0.5em 0; /* Spacing between list items */
+}
+
+.sidebar button {
+    width: 100%;
+    font-weight: bold;
+    padding: 0.8em 1em;
+    background-color: #3498db; /* Professional blue button */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+  
