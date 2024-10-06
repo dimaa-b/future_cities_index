@@ -1,0 +1,10 @@
+.sidebar {
+    box-sizing: border-box;
+    padding: 2em;
+    width: 30vw;
+}
+
+.leaflet-container {
+    width: 70vw;
+    height: 100vh;
+}
