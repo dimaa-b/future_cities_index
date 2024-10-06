@@ -100,4 +100,80 @@
 .dropdown-content strong {
     font-weight: bold;
 }
+
+/* Merged CSS for SearchBarControl */
+.search-bar-control {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    background-color: white;
+    padding: 20px; /* Increased padding for a clean look */
+    border-radius: 10px; /* Increased border-radius for a smoother appearance */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Slightly larger shadow */
+    display: flex;
+    align-items: center;
+}
+
+/* Form layout */
+.search-bar-control form {
+    display: flex;
+    width: 100%;
+}
+
+/* Input field styling */
+.search-bar-control input {
+    padding: 10px 15px; /* Larger padding for a more modern look */
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px;
+    margin-right: 5px;
+    outline: none;
+    transition: border-color 0.3s ease;
+    flex: 1;
+}
+
+.search-bar-control input:focus {
+    border-color: #007BFF;
+}
+
+/* Button styling */
+.search-bar-control button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-bar-control button:hover {
+    background-color: #0056b3;
+}
+
+.search-bar-control button:active {
+    background-color: #004494;
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 1000;
+}
+
+.loading-spinner {
+    font-size: 24px;
+    color: #333;
+}
+
+  
   
