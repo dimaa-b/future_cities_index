@@ -97,6 +97,10 @@ export default function MapComponent() {
                     attribution='&copy; LightBox RE'
                     url="http://localhost:3000/v1/census/us/tracts/tile/{z}/{x}/{y}"
                 />
+                <TileLayer
+                    attribution='&copy; LightBox RE'
+                    url="http://localhost:3000/v1/nfhls/us/tile/{z}/{x}/{y}"
+                />
 
                 <MapEventsHandler handleMapClick={handleMapClick} />
                 {clickedPositionData && clickedPositionData.geoJson &&

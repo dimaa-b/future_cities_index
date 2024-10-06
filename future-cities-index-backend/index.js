@@ -10,6 +10,37 @@ const PORT = process.env.PORT || 3000;
 // Replace this with your actual Lightbox API key
 const API_KEY = 'ybSJwuppzNOIWrOPUpw7QlRlGAWGhsG9';
 
+app.get('/v1/nfhls/us/tile/:z/:x/:y', (req, res) => {
+    const { z, x, y } = req.params;
+
+    // Build the API URL using the parameters
+    const apiUrl = `https://api.lightboxre.com/v1/nfhls/us/tile/${z}/${x}/${y}`;
+
+    // Make the request to the Lightbox API
+    axios.get(apiUrl, {
+        headers: {
+            'x-api-key': `${API_KEY}`
+        },
+        responseType: 'stream'
+    }).then((response) => {
+        // Set the correct content type for the image
+        res.setHeader('Content-Type', response.headers['content-type']);
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+
+        // Pipe the response data to the client
+        response.data.pipe(res);
+    }).catch((error) => {
+        console.error('Error fetching data from Lightbox API:', error.message);
+
+        // Handle errors
+        res.status(error.response ? error.response.status : 500).json({
+            message: 'Error fetching data from Lightbox API',
+            error: error.message
+        });
+    });
+});
+
 // Route for Lightbox API proxy
 app.get('/v1/census/us/tracts/tile/:z/:x/:y', async (req, res) => {
     const { z, x, y } = req.params;
