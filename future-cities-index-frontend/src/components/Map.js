@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { MapContainer, TileLayer, useMapEvents, Marker, useMap, GeoJSON } from "react-leaflet";
+import MapSidebar from './MapSidebar';
 import L from 'leaflet';
 import wkt from 'terraformer-wkt-parser';
 import "leaflet/dist/leaflet.css";
@@ -21,26 +22,11 @@ function getGeoJsonBounds(geoJson) {
 }
 
 export default function MapComponent() {
+    const [loading, setLoading] = useState(false);
     const [clickedPosition, setClickedPosition] = useState([0, 0]);
     const [clickedPositionData, setClickedPositionData] = useState(null);
 
-    const [isCensusVisible, setCensusVisible] = useState(false);
-    const [isFutureCitiesIndexVisible, setFutureCitiesIndexVisible] = useState(false);
-
-    // Toggle function to show or hide the dropdown
-    const toggleCensus = () => {
-        setCensusVisible(!isCensusVisible);
-    };
-    const toggleFutureCitiesIndex = () => {
-        setFutureCitiesIndexVisible(!isFutureCitiesIndexVisible);
-    };
-
     const initPosition = [37.0902, -95.7129];;
-
-    // fetch data asynchronously after clickedPosition is set
-    useEffect(() => {
-
-    }, [clickedPositionData]);
 
     useEffect(() => {
         if (clickedPosition[0] === 0 && clickedPosition[1] === 0) {
@@ -65,7 +51,7 @@ export default function MapComponent() {
                     geoJson: { ...wktToGeoJSON(data.censusTracts[0].location.geometry.wkt) },
                     futureCitiesIndex: null
                 });
-                
+
 
                 fetch(`http://localhost:3000/future-cities-index/${clickedPositionData.geoId}`)
                     .then((response) => {
@@ -76,7 +62,7 @@ export default function MapComponent() {
                     })
                     .then((data) => {
                         setClickedPositionData(prevData => ({
-                            ...prevData, 
+                            ...prevData,
                             futureCitiesIndex: data
                         }));
                     }).catch((error) => {
@@ -120,33 +106,7 @@ export default function MapComponent() {
                     <GeoJSON data={clickedPositionData.geoJson} key={JSON.stringify(clickedPositionData.geoJson)} />}
             </MapContainer>
 
-            {clickedPositionData && clickedPositionData.geoJson && (
-                <div className="sidebar">
-                    <h1>Census Information</h1>
-                    <div className="census">
-                        <button className="dropbtn" onClick={toggleCensus}>Census Information</button>
-                        {isCensusVisible && (
-                            <div className="dropdown-content" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                                <p><strong>Census Name:</strong> {clickedPositionData.censusName}</p>
-                                <p><strong>GeoID:</strong> {clickedPositionData.geoId}</p>
-                                <p><strong>Tract Code:</strong> {clickedPositionData.tractCode}</p>
-                                <p><strong>Feature Class:</strong> {clickedPositionData.featureClass}</p>
-                            </div>)}
-                    </div>
-                    <div>
-                        <button className="dropbtn" onClick={toggleFutureCitiesIndex}>Future Cities</button>
-                        {isFutureCitiesIndexVisible && (
-                            <div className="dropdown-content" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                                <p><strong style={{ color: 'red' }} >Future Cities Index:</strong> {clickedPositionData.futureCitiesIndex ? clickedPositionData.futureCitiesIndex.futureCitiesIndex : "Could not be found."}</p>
-                                <p><strong>Flood Risk:</strong> {clickedPositionData.futureCitiesIndex ? clickedPositionData.futureCitiesIndex.floodRisk : "N/A"}</p>
-                                <p><strong>Fire Risk:</strong> {clickedPositionData.futureCitiesIndex ? clickedPositionData.futureCitiesIndex.fireRisk : "N/A"}</p>
-                                <p><strong>Hazardous Waste Proximity:</strong> {clickedPositionData.futureCitiesIndex ? clickedPositionData.futureCitiesIndex.hazardousWasteProximity : "N/A"}</p>
-                                <p><strong>Social Vulnerability Score:</strong> {clickedPositionData.futureCitiesIndex ? clickedPositionData.futureCitiesIndex.socialVulnerabilityScore : "N/A"}</p>
-                                <p><strong>Community Resilience Score:</strong> {clickedPositionData.futureCitiesIndex ? clickedPositionData.futureCitiesIndex.communityResilienceScore : "N/A"}</p>
-                            </div>)}
-                    </div>
-                </div>
-            )}
+            <MapSidebar clickedPositionData={clickedPositionData} />
         </>
     );
 }
