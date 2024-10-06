@@ -11,6 +11,9 @@ export default function MapComponent() {
     const mapStyle = { height: "100vh" };
 
     useEffect(() => {
+        if (clickedPosition[0] === 0 && clickedPosition[1] === 0) {
+            return;
+        }
         const wkt = `POINT(${clickedPosition[1]} ${clickedPosition[0]})`; // WKT format uses "lng lat" (long-lat order)
         fetch(`http://localhost:3000/census/us/tracts/geometry?wkt=${encodeURIComponent(wkt)}`)
             .then((response) => {
@@ -22,8 +25,13 @@ export default function MapComponent() {
             .then((data) => {
                 // Handle the data returned from the API
                 // console.log('Census Tract Data:', data.censusTracts[0].tractCode);
-                setClickedPositionData(data.censusTracts[0].tractCode);
-            })
+                setClickedPositionData({
+                    tractCode: data.censusTracts[0].tractCode,
+                });
+            }).catch((error) => {
+                // Handle errors
+                console.error('Error fetching data from Lightbox API:', error.message);
+            });
     }, [clickedPosition]);
 
     const handleMapClick = (e) => {
@@ -46,11 +54,12 @@ export default function MapComponent() {
             />
             <MapEventsHandler handleMapClick={handleMapClick} />
 
-            <Marker position={clickedPosition}>
-                <Popup>
-                    {clickedPositionData ? `Census Tract: ${clickedPositionData}` : 'Click on the map to get Census Tract data'}
-                </Popup>
-            </Marker>
+            {/* Display the popover */}
+            {clickedPosition != [0, 0] && 
+            <Popup position={clickedPosition}>
+                {clickedPositionData ? `Census Tract: ${clickedPositionData.tractCode}` : 'Click on the map to get Census Tract data'}
+            </Popup>}
+
         </MapContainer>
     );
 }
